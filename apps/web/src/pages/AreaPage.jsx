@@ -77,7 +77,7 @@ export default function AreaPage() {
     return (
         <div className="min-h-screen bg-[hsl(var(--background))] text-foreground">
             <Helmet>
-                <title>{`${area.name} — soluções por IA | ResolvoHub`}</title>
+                <title>{`${area.name} — soluções por IA | Resolvo Já`}</title>
                 <meta name="description" content={`${area.tagline} Escolha a subdivisão do seu problema em ${area.name} e receba uma prévia de solução gerada por IA.`} />
             </Helmet>
 

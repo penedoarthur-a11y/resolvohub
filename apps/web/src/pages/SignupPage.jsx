@@ -36,8 +36,8 @@ export default function SignupPage() {
     return (
         <div className="min-h-screen bg-[hsl(var(--background))] text-foreground">
             <Helmet>
-                <title>Criar conta — ResolvoHub</title>
-                <meta name="description" content="Crie sua conta gratuita no ResolvoHub e gere prévias de soluções personalizadas por IA para a sua empresa." />
+                <title>Criar conta — Resolvo Já</title>
+                <meta name="description" content="Crie sua conta gratuita no Resolvo Já e gere prévias de soluções personalizadas por IA para a sua empresa." />
             </Helmet>
             <SiteHeader />
             <main className="relative overflow-hidden">

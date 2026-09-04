@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import logo from '@/assets/logo-resolvoja.png';
 
 const links = [
     { to: '/', label: 'Hub' },
@@ -24,8 +25,7 @@ export default function SiteHeader() {
         <header className="sticky top-0 z-40 border-b border-white/10 bg-[hsl(var(--background))]/70 backdrop-blur-xl">
             <div className="mx-auto flex h-16 max-w-[90rem] items-center justify-between px-5 sm:px-8">
                 <Link to="/" className="group flex items-center gap-2">
-                    <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-aurora font-display text-sm font-bold text-white shadow-3d transition-transform group-hover:scale-105">R</span>
-                    <span className="font-display text-lg font-semibold tracking-tight">Resolvo<span className="text-gradient-aurora">Hub</span></span>
+                    <img src={logo} alt="Resolvo Já" className="h-8 w-auto transition-transform group-hover:scale-105" />
                 </Link>
 
                 <nav className="hidden items-center gap-7 md:flex">

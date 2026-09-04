@@ -31,8 +31,8 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen bg-[hsl(var(--background))] text-foreground">
             <Helmet>
-                <title>Entrar — ResolvoHub</title>
-                <meta name="description" content="Acesse sua conta ResolvoHub para gerar prévias de soluções por IA e ver suas soluções compradas." />
+                <title>Entrar — Resolvo Já</title>
+                <meta name="description" content="Acesse sua conta Resolvo Já para gerar prévias de soluções por IA e ver suas soluções compradas." />
             </Helmet>
             <SiteHeader />
             <main className="relative overflow-hidden">

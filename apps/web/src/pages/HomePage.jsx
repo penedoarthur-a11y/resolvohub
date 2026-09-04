@@ -29,7 +29,7 @@ export default function HomePage() {
     return (
         <div className="min-h-screen bg-[hsl(var(--background))] text-foreground">
             <Helmet>
-                <title>ResolvoHub — hub de soluções por IA para pequenas empresas</title>
+                <title>Resolvo Já — hub de soluções por IA para pequenas empresas</title>
                 <meta name="description" content="Escolha a área, aponte o problema e receba uma solução personalizada gerada por IA: gestão, operações, fiscal, administrativo, tecnologia, estoque e RH." />
             </Helmet>
 

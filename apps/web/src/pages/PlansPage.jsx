@@ -16,8 +16,8 @@ export default function PlansPage() {
     return (
         <div className="min-h-screen bg-[hsl(var(--background))] text-foreground">
             <Helmet>
-                <title>Planos e preços — ResolvoHub</title>
-                <meta name="description" content="Assine o ResolvoHub e libere soluções ilimitadas geradas por IA para gestão, operações, fiscal, tecnologia, estoque e RH da sua pequena empresa." />
+                <title>Planos e preços — Resolvo Já</title>
+                <meta name="description" content="Assine o Resolvo Já e libere soluções ilimitadas geradas por IA para gestão, operações, fiscal, tecnologia, estoque e RH da sua pequena empresa." />
             </Helmet>
             <SiteHeader />
 

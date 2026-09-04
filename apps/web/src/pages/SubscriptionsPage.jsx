@@ -10,8 +10,8 @@ export default function SubscriptionsPage() {
     return (
         <div className="min-h-screen bg-[hsl(var(--background))] text-foreground">
             <Helmet>
-                <title>Minha assinatura — ResolvoHub</title>
-                <meta name="description" content="Veja o plano ativo da sua conta ResolvoHub e gerencie a cobrança da assinatura." />
+                <title>Minha assinatura — Resolvo Já</title>
+                <meta name="description" content="Veja o plano ativo da sua conta Resolvo Já e gerencie a cobrança da assinatura." />
             </Helmet>
             <SiteHeader />
             <main className="relative overflow-hidden">

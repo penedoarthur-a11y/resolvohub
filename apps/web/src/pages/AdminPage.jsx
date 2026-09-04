@@ -126,8 +126,8 @@ export default function AdminPage() {
     return (
         <div className="min-h-screen bg-[hsl(var(--background))] text-foreground">
             <Helmet>
-                <title>Painel administrativo — ResolvoHub</title>
-                <meta name="description" content="Visão administrativa do catálogo de áreas, subdivisões e planos de assinatura do ResolvoHub." />
+                <title>Painel administrativo — Resolvo Já</title>
+                <meta name="description" content="Visão administrativa do catálogo de áreas, subdivisões e planos de assinatura do Resolvo Já." />
             </Helmet>
             <SiteHeader />
 

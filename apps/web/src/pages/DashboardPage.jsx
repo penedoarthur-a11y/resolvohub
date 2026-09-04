@@ -42,8 +42,8 @@ export default function DashboardPage() {
     return (
         <div className="min-h-screen bg-[hsl(var(--background))] text-foreground">
             <Helmet>
-                <title>Meu painel — ResolvoHub</title>
-                <meta name="description" content="Acompanhe sua assinatura, suas soluções compradas e continue explorando as áreas do ResolvoHub." />
+                <title>Meu painel — Resolvo Já</title>
+                <meta name="description" content="Acompanhe sua assinatura, suas soluções compradas e continue explorando as áreas do Resolvo Já." />
             </Helmet>
             <SiteHeader />
 
