@@ -388,6 +388,8 @@ export default defineConfig({
 			'.app-preview.com',
 			'.app-preview.io',
 			'.up.railway.app',
+			'resolvoja.com',
+			'.resolvoja.com',
 		],
 		fs: {
 			strict: true,
