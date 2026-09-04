@@ -387,6 +387,7 @@ export default defineConfig({
 		allowedHosts: [
 			'.app-preview.com',
 			'.app-preview.io',
+			'.up.railway.app',
 		],
 		fs: {
 			strict: true,
