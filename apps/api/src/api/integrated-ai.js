@@ -153,7 +153,7 @@ export async function uploadImagesToPocketBase({ images }) {
 
 		const url = pocketbaseClient.files.getURL(record, record.file);
 
-		return url.replace('http://localhost:8090', `https://${process.env.WEBSITE_DOMAIN}/hcgi/platform`);
+		return url.replace(process.env.POCKETBASE_URL || 'http://localhost:8090', process.env.POCKETBASE_PUBLIC_URL || 'http://localhost:8090');
 	});
 
 	return Promise.all(uploadPromises);
@@ -190,7 +190,7 @@ function signImageReference(reference, token) {
 		return appendToken(reference, token);
 	}
 
-	const base = `https://${process.env.WEBSITE_DOMAIN}/hcgi/platform`;
+	const base = process.env.POCKETBASE_PUBLIC_URL || 'http://localhost:8090';
 	const path = reference.startsWith('/') ? reference : `/${reference}`;
 
 	return appendToken(`${base}${path}`, token);

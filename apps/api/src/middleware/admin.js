@@ -13,7 +13,7 @@ export default async function adminMiddleware(req, res, next) {
     const token = header.slice('Bearer '.length).trim();
 
     try {
-        const response = await fetch('http://localhost:8090/api/collections/users/auth-refresh', {
+        const response = await fetch(`${process.env.POCKETBASE_URL || 'http://localhost:8090'}/api/collections/users/auth-refresh`, {
             method: 'POST',
             headers: { Authorization: token },
         });
