@@ -81,7 +81,7 @@ const integratedAiClient = {
 		}
 
 		if (!response.body) {
-			throw new Error('No response body');
+			throw new Error('Resposta sem conteúdo');
 		}
 
 		return response;

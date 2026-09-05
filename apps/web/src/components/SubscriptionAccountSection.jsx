@@ -40,10 +40,10 @@ export default function SubscriptionAccountSection({ className }) {
 			<section className={wrapper}>
 				<div className="flex items-center gap-3 mb-2">
 					<div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-					<h2 className="text-lg font-semibold">Activating your subscription…</h2>
+					<h2 className="text-lg font-semibold">Ativando sua assinatura…</h2>
 				</div>
 				<p className="text-muted-foreground">
-					Hold on while we finalize your payment. This usually takes a few seconds.
+					Aguarde enquanto finalizamos seu pagamento. Isso costuma levar alguns segundos.
 				</p>
 			</section>
 		);
@@ -52,9 +52,9 @@ export default function SubscriptionAccountSection({ className }) {
 	if (pollingExhausted && !active) {
 		return (
 			<section className={wrapper}>
-				<h2 className="text-lg font-semibold mb-2">Almost there</h2>
+				<h2 className="text-lg font-semibold mb-2">Quase lá</h2>
 				<p className="text-muted-foreground mb-4">
-					Your payment is being processed. Refresh in a moment to see your subscription.
+					Seu pagamento está sendo processado. Atualize a página daqui a pouco para ver sua assinatura.
 				</p>
 				<ManageSubscriptionButton />
 			</section>
@@ -64,22 +64,22 @@ export default function SubscriptionAccountSection({ className }) {
 	if (!active) {
 		return (
 			<section className={wrapper}>
-				<h2 className="text-lg font-semibold mb-2">Subscription</h2>
+				<h2 className="text-lg font-semibold mb-2">Assinatura</h2>
 				<p className="text-muted-foreground mb-4">
-					You don't have an active subscription. Unlock premium features with a paid plan.
+					Você não tem uma assinatura ativa. Desbloqueie recursos premium com um plano pago.
 				</p>
 				<ManageSubscriptionButton />
 			</section>
 		);
 	}
 
-	const statusLabel = active.status === 'trialing' ? 'Trialing' : 'Active';
+	const statusLabel = active.status === 'trialing' ? 'Em teste' : 'Ativa';
 
 	return (
 		<section className={wrapper}>
 			<div className="flex items-start justify-between gap-4 mb-4">
 				<div>
-					<h2 className="text-lg font-semibold">Subscription</h2>
+					<h2 className="text-lg font-semibold">Assinatura</h2>
 					<p className="text-2xl font-bold mt-1">{active.product_title}</p>
 				</div>
 				<span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold uppercase tracking-wide">

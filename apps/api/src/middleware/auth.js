@@ -1,5 +1,5 @@
 export default async function authMiddleware(req, res, next) {
-	const reject = () => res.status(401).json({ error: 'Unauthorized' });
+	const reject = () => res.status(401).json({ error: 'Não autorizado' });
 	const header = req.headers.authorization;
 	if (!header || !header.startsWith('Bearer ')) return reject();
 	const token = header.slice('Bearer '.length).trim();

@@ -13,8 +13,8 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
   const handleCheckout = useCallback(async () => {
     if (cartItems.length === 0) {
       toast({
-        title: 'Your cart is empty',
-        description: 'Add some products to your cart before checking out.',
+        title: 'Seu carrinho está vazio',
+        description: 'Adicione alguns produtos ao carrinho antes de finalizar a compra.',
         variant: 'destructive',
       });
       return;
@@ -35,8 +35,8 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
       window.location.href = url;
     } catch (error) {
       toast({
-        title: 'Checkout Error',
-        description: 'There was a problem initializing checkout. Please try again.',
+        title: 'Erro no checkout',
+        description: 'Houve um problema ao iniciar o checkout. Tente novamente.',
         variant: 'destructive',
       });
     }
@@ -89,7 +89,7 @@ const ShoppingCart = ({ isCartOpen, setIsCartOpen }) => {
                         <span className="px-2 text-card-foreground">{item.quantity}</span>
                         <Button onClick={() => updateQuantity(item.variant.id, item.quantity + 1)} size="sm" variant="ghost" className="px-2 text-card-foreground hover:bg-muted">+</Button>
                       </div>
-                      <Button onClick={() => removeFromCart(item.variant.id)} size="sm" variant="ghost" className="text-destructive hover:text-destructive/90 text-xs">Remove</Button>
+                      <Button onClick={() => removeFromCart(item.variant.id)} size="sm" variant="ghost" className="text-destructive hover:text-destructive/90 text-xs">Remover</Button>
                     </div>
                   </div>
                 ))

@@ -19,7 +19,7 @@ export async function pocketbaseAuth(req, res, next) {
 	// Auth is enforced by default. To allow public (anonymous) access, remove this
 	// middleware from the route (apps/api/src/routes/integrated-ai.js).
 	if (!token) {
-		return next(unauthorizedError('Please sign in or create an account to use the chat.'));
+		return next(unauthorizedError('Faça login ou crie uma conta para usar o chat.'));
 	}
 
 	try {
@@ -27,7 +27,7 @@ export async function pocketbaseAuth(req, res, next) {
 		const tokenData = JSON.parse(base64Decoded);
 
 		if (!tokenData?.token || !tokenData?.record) {
-			return next(unauthorizedError('Your session has expired. Please sign in again.'));
+			return next(unauthorizedError('Sua sessão expirou. Faça login novamente.'));
 		}
 
 		// by refreshing token we verify that it was not intercepted by a malicious user
@@ -36,13 +36,13 @@ export async function pocketbaseAuth(req, res, next) {
 		const newToken = await pocketbaseClient.collection(tokenData.record.collectionName).authRefresh();
 
 		if (!newToken.record.verified) {
-			return next(forbiddenError('Please verify your email to use the chat. Check your inbox for the verification link.'));
+			return next(forbiddenError('Verifique seu e-mail para usar o chat. Confira sua caixa de entrada para o link de verificação.'));
 		}
 
 		req.pocketbaseUserId = newToken.record.id;
 
 		return next();
 	} catch {
-		return next(unauthorizedError('Your session has expired. Please sign in again.'));
+		return next(unauthorizedError('Sua sessão expirou. Faça login novamente.'));
 	}
 }

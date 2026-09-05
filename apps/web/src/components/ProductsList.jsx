@@ -37,12 +37,12 @@ const ProductCard = ({ product, index }) => {
     try {
       await addToCart(product, defaultVariant, 1, defaultVariant.inventory_quantity);
       toast({
-        title: "Added to Cart! 🛒",
-        description: `${product.title} has been added to your cart.`,
+        title: "Adicionado ao carrinho! 🛒",
+        description: `${product.title} foi adicionado ao seu carrinho.`,
       });
     } catch (error) {
       toast({
-        title: "Error adding to cart",
+        title: "Erro ao adicionar ao carrinho",
         description: error.message,
       });
     }

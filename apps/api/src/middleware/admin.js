@@ -4,8 +4,8 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '')
     .filter(Boolean);
 
 export default async function adminMiddleware(req, res, next) {
-    const unauthorized = () => res.status(401).json({ error: 'Unauthorized' });
-    const forbidden = () => res.status(403).json({ error: 'Forbidden' });
+    const unauthorized = () => res.status(401).json({ error: 'Não autorizado' });
+    const forbidden = () => res.status(403).json({ error: 'Acesso negado' });
 
     const header = req.headers.authorization;
     if (!header?.startsWith('Bearer ')) return unauthorized();

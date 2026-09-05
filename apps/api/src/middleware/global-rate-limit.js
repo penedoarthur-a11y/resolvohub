@@ -5,6 +5,6 @@ export const globalRateLimit = rateLimit({
 	max: 100,
 	standardHeaders: true,
 	legacyHeaders: false,
-	message: { error: 'Too many requests, please try again later' },
+	message: { error: 'Muitas requisições, tente novamente mais tarde' },
 	validate: { trustProxy: false },
 });

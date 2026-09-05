@@ -272,7 +272,7 @@ function useIntegratedAi() {
 			} catch (err) {
 				toast({
 					variant: 'destructive',
-					title: 'Error',
+					title: 'Erro',
 					description: err.message,
 				});
 			} finally {
@@ -426,7 +426,7 @@ function useIntegratedAi() {
 
 			toast({
 				variant: 'destructive',
-				title: 'Error',
+				title: 'Erro',
 				description: err.message,
 			});
 

@@ -9,7 +9,7 @@ const errorMiddleware = (err, req, res, next) => {
 	}
 
 	res.status(500).json({
-		message: 'Something went wrong!',
+		message: 'Algo deu errado!',
 		...(process.env.NODE_ENV !== NodeEnv.Production && {
 			error: {
 				name: err.name,

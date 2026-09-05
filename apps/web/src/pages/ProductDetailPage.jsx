@@ -28,13 +28,13 @@ function ProductDetailPage() {
       try {
         await addToCart(product, selectedVariant, quantity, availableQuantity);
         toast({
-          title: "Added to Cart! 🛒",
-          description: `${quantity} x ${product.title} (${selectedVariant.title}) added.`,
+          title: "Adicionado ao carrinho! 🛒",
+          description: `${quantity} x ${product.title} (${selectedVariant.title}) adicionado.`,
         });
       } catch (error) {
         toast({
           variant: "destructive",
-          title: "Oh no! Something went wrong.",
+          title: "Ops! Algo deu errado.",
           description: error.message,
         });
       }
@@ -259,7 +259,7 @@ function ProductDetailPage() {
 
             {product.variants.length > 1 && (
               <div className="mb-6">
-                <h3 className="text-sm font-medium text-white mb-2">Style</h3>
+                <h3 className="text-sm font-medium text-white mb-2">Estilo</h3>
                 <div className="flex flex-wrap gap-2">
                   {product.variants.map(variant => (
                     <Button

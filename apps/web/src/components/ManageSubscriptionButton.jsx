@@ -34,7 +34,7 @@ export default function ManageSubscriptionButton({ className, plansPath = PLANS_
 				onClick={() => navigate(plansPath)}
 				className={className ?? 'rounded-md border px-4 py-2 font-medium hover:bg-muted'}
 			>
-				View plans
+				Ver planos
 			</button>
 		);
 	}
@@ -65,7 +65,7 @@ export default function ManageSubscriptionButton({ className, plansPath = PLANS_
 				disabled={loading}
 				className={className ?? 'rounded-md border px-4 py-2 font-medium hover:bg-muted disabled:opacity-60'}
 			>
-				{loading ? 'Redirecting…' : 'Manage subscription'}
+				{loading ? 'Redirecionando…' : 'Gerenciar assinatura'}
 			</button>
 			{errorMessage && (
 				<p className="text-sm text-destructive mt-2" role="alert">{errorMessage}</p>

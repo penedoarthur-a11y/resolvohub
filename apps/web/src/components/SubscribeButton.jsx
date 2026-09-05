@@ -60,7 +60,7 @@ export default function SubscribeButton({ plan, variant, className, label }) {
 			if (hasActive) {
 				navigate(MANAGE_PATH);
 			} else {
-				setErrorMessage("Couldn't start checkout. Please try again.");
+				setErrorMessage('Não foi possível iniciar o checkout. Tente novamente.');
 			}
 		}
 	};
@@ -73,7 +73,7 @@ export default function SubscribeButton({ plan, variant, className, label }) {
 				disabled={loading}
 				className={className ?? 'w-full rounded-md bg-primary text-primary-foreground px-4 py-2 font-medium hover:bg-primary/90 disabled:opacity-60'}
 			>
-				{loading ? 'Redirecting…' : (label ?? `Subscribe to ${plan?.title ?? 'plan'}`)}
+				{loading ? 'Redirecionando…' : (label ?? `Assinar ${plan?.title ?? 'plano'}`)}
 			</button>
 			{errorMessage && (
 				<p className="text-sm text-destructive mt-2" role="alert">{errorMessage}</p>
