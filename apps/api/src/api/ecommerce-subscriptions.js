@@ -37,15 +37,22 @@ const INTERVAL_TO_BILLING_INTERVAL = {
 	day: 'daily',
 };
 
-function mapSubscription(subscription) {
+/**
+ * Maps a Stripe subscription (with `items.data.price` expanded) into the frontend shape,
+ * fetching the product separately since Stripe caps `expand` at 4 levels and
+ * `data.items.data.price.product` on a list call would be a 5th.
+ */
+async function mapSubscription(subscription) {
 	const item = subscription.items.data[0];
 	const price = item.price;
-	const product = price.product;
+	const product = typeof price.product === 'string'
+		? await stripeClient.products.retrieve(price.product)
+		: price.product;
 
 	return {
 		id: subscription.id,
-		product_id: typeof product === 'string' ? product : product.id,
-		product_title: typeof product === 'string' ? product : product.name,
+		product_id: product.id,
+		product_title: product.name,
 		variant_title: INTERVAL_TO_VARIANT_TITLE[price.recurring?.interval] ?? price.recurring?.interval,
 		billing_interval: INTERVAL_TO_BILLING_INTERVAL[price.recurring?.interval] ?? price.recurring?.interval,
 		status: subscription.status,
@@ -106,10 +113,10 @@ export async function getUserSubscriptions({ userId }) {
 	const subscriptions = await stripeClient.subscriptions.list({
 		customer: customerId,
 		status: 'all',
-		expand: ['data.items.data.price.product'],
+		expand: ['data.items.data.price'],
 	});
 
-	return subscriptions.data.map(mapSubscription);
+	return Promise.all(subscriptions.data.map(mapSubscription));
 }
 
 /**
@@ -210,5 +217,5 @@ export async function listPlans() {
 }
 
 function formatBrl(amountInCents) {
-	return `R$${(amountInCents / 100).toFixed(2)}`;
+	return `R$${(amountInCents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
