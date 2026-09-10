@@ -1,14 +1,9 @@
+import pocketbaseClient from '@/lib/pocketbaseClient';
+
 const API_SERVER_URL = import.meta.env.VITE_API_URL || '/hcgi/api';
 
 function getPocketbaseToken() {
-	const pocketbaseToken = localStorage.getItem('pocketbase_auth');
-
-	if (pocketbaseToken) {
-		const bytes = new TextEncoder().encode(pocketbaseToken);
-		const binary = String.fromCharCode(...bytes);
-
-		return btoa(binary);
-	}
+	return pocketbaseClient.authStore.token || undefined;
 }
 
 const integratedAiClient = {
