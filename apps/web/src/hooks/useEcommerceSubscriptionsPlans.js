@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
-import { getProducts } from '@/api/EcommerceApi';
-
-/** @import { ProductListResponse } from '@/api/EcommerceApi' */
+import apiServerClient from '@/lib/apiServerClient';
 
 /**
- * Fetches subscription products via {@link getProducts} (`type: 'subscription'`).
- * Each item in `plans` is a {@link ProductListResponse}. Use a variant `id` as `variant_id` in {@link initializeCheckout}.
+ * Fetches subscription plans from our own backend (`GET /ecommerce/plans`), which reads
+ * them live from Stripe. Each item in `plans` has the same shape the old Hostinger
+ * catalog used to return (`id`, `title`, `description`, `variants[]`).
  *
  * Usage (Plans / pricing page — do not hardcode tiers):
  *   import { useEcommerceSubscriptionsPlans } from '@/hooks/useEcommerceSubscriptionsPlans';
@@ -22,22 +21,29 @@ import { getProducts } from '@/api/EcommerceApi';
  *   });
  *
  * @returns {{
- *   plans: ProductListResponse[],
+ *   plans: Array<object>,
  *   loading: boolean,
  *   error: Error | null,
  * }}
  */
 export function useEcommerceSubscriptionsPlans() {
-	const [plans, setPlans] = useState(/** @type {ProductListResponse[]} */ ([]));
+	const [plans, setPlans] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 
 	useEffect(() => {
 		let cancelled = false;
-		getProducts({ type: 'subscription' })
-			.then((res) => {
+
+		apiServerClient.fetch('/ecommerce/plans')
+			.then(async (res) => {
+				if (!res.ok) {
+					throw new Error(`Failed to fetch plans: ${res.status}`);
+				}
+				return res.json();
+			})
+			.then((data) => {
 				if (cancelled) return;
-				setPlans(res?.products ?? []);
+				setPlans(data?.plans ?? []);
 			})
 			.catch((err) => {
 				if (cancelled) return;
@@ -47,6 +53,7 @@ export function useEcommerceSubscriptionsPlans() {
 				if (cancelled) return;
 				setLoading(false);
 			});
+
 		return () => {
 			cancelled = true;
 		};

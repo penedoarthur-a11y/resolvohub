@@ -68,3 +68,32 @@ export async function getManageSubscriptionUrl({ subscriptionId, returnUrl }) {
 	}
 	return body;
 }
+
+/**
+ * POST `/ecommerce/subscriptions/checkout` — creates a Stripe Checkout session for a plan price.
+ *
+ * Usage (Subscribe button — redirect with `window.location`):
+ *   import { createCheckoutSession } from '@/api/InternalEcommerceSubscriptionsApi';
+ *   const { url } = await createCheckoutSession({
+ *     priceId: variant.id,
+ *     successUrl: window.location.origin + MANAGE_PATH,
+ *     cancelUrl: window.location.href,
+ *   });
+ *   window.location = url;
+ *
+ * @param {{ priceId: string, successUrl: string, cancelUrl: string }} params
+ * @returns {Promise<{ url: string }>}
+ */
+export async function createCheckoutSession({ priceId, successUrl, cancelUrl }) {
+	const response = await apiServerClient.fetch('/ecommerce/subscriptions/checkout', {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json', ...authHeader() },
+		body: JSON.stringify({ priceId, successUrl, cancelUrl }),
+	});
+	if (!response.ok) {
+		let body = null;
+		try { body = await response.json(); } catch { /* body was not JSON */ }
+		throw new Error(body?.message ?? `Failed to start checkout: ${response.status}`);
+	}
+	return response.json();
+}

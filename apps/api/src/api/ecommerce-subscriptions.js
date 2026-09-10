@@ -1,4 +1,5 @@
-import process from 'node:process';
+import stripeClient from '../utils/stripe.js';
+import pocketbaseClient from '../utils/pocketbaseClient.js';
 
 /**
  * @typedef {'daily' | 'weekly' | 'monthly' | 'yearly'} EcommerceBillingInterval
@@ -9,158 +10,205 @@ import process from 'node:process';
  */
 
 /**
- * Subscription data from the e-commerce API.
+ * Subscription data mapped from Stripe into the shape the frontend already expects.
  *
  * @typedef {object} EcommerceSubscription
  * @property {string} id - Subscription ID.
- * @property {string} product_id - Subscription plan product ID (value that should be used to validate if the user has the correct tier subscription).
- * @property {string} product_title - Subscription plan title.
- * @property {string} variant_title - Subscription variant (plan period) title.
+ * @property {string} product_id - Stripe product id.
+ * @property {string} product_title - Stripe product name.
+ * @property {string} variant_title - Human-readable billing period ("Mensal" / "Anual").
  * @property {EcommerceBillingInterval} billing_interval - Subscription billing interval.
  * @property {EcommerceSubscriptionStatus} status - Subscription status.
  * @property {string} current_period_start - Subscription current period start date.
  * @property {string} current_period_end - Subscription current period end date.
- * @property {string} created_at - Subscription creation date.
- * @property {string} updated_at - Subscription last update date.
  */
 
-/**
- * User data from the e-commerce API.
- *
- * @typedef {object} EcommerceUser
- * @property {string} id - User ID.
- * @property {string} email - User email.
- * @property {string} created_at - User creation date.
- * @property {string} updated_at - User last update date.
- * @property {EcommerceSubscription[]} subscriptions - User subscriptions.
- */
+const INTERVAL_TO_VARIANT_TITLE = {
+	month: 'Mensal',
+	year: 'Anual',
+	week: 'Semanal',
+	day: 'Diário',
+};
 
-/**
- * @typedef {object} ManageUserSubscriptionsResponse
- * @property {string} url - The manage subscriptions URL.
- */
+const INTERVAL_TO_BILLING_INTERVAL = {
+	month: 'monthly',
+	year: 'yearly',
+	week: 'weekly',
+	day: 'daily',
+};
 
-/**
- * @param {unknown} value
- * @param {string} fieldLabel Human-readable name for error messages (e.g. `User ID`, `Return URL`).
- * @returns {string}
- */
-function requireNonEmptyTrimmedString(value, fieldLabel) {
-	if (typeof value !== 'string' || value.trim() === '') {
-		throw new Error(`${fieldLabel} is required`);
-	}
+function mapSubscription(subscription) {
+	const item = subscription.items.data[0];
+	const price = item.price;
+	const product = price.product;
 
-	return value.trim();
+	return {
+		id: subscription.id,
+		product_id: typeof product === 'string' ? product : product.id,
+		product_title: typeof product === 'string' ? product : product.name,
+		variant_title: INTERVAL_TO_VARIANT_TITLE[price.recurring?.interval] ?? price.recurring?.interval,
+		billing_interval: INTERVAL_TO_BILLING_INTERVAL[price.recurring?.interval] ?? price.recurring?.interval,
+		status: subscription.status,
+		current_period_start: new Date(item.current_period_start * 1000).toISOString(),
+		current_period_end: new Date(item.current_period_end * 1000).toISOString(),
+	};
 }
 
 /**
- * @param {Response} response
+ * @param {string} userId PocketBase `users` record id.
+ * @returns {Promise<string|null>} Stripe customer id already stored on the user, or null.
  */
-async function throwIfEcommerceResponseNotOk(response) {
-	if (response.ok) {
-		return;
-	}
+async function getStoredStripeCustomerId(userId) {
+	const user = await pocketbaseClient.collection('users').getOne(userId);
 
-	const errorBody = await response.text().catch(() => 'Unknown error');
-
-	throw new Error(`E-commerce API request failed with status ${response.status}: ${errorBody}`);
+	return user.stripe_customer_id || null;
 }
 
 /**
- * @param {Response} response
- * @returns {Promise<unknown>}
- */
-async function readEcommerceJsonBody(response) {
-	return response.json().catch(() => {
-		throw new Error(`Failed to parse response body as JSON: ${response.statusText}`);
-	});
-}
-
-/**
- * Returns the user from the e-commerce API, or `null` if the user has not yet
- * been registered as a customer (i.e. has never started a checkout).
+ * Finds or creates the Stripe customer for a PocketBase user, persisting the id back
+ * onto the user record so future lookups don't need to hit Stripe's customer search.
  *
  * @param {{ userId: string }} params
- * @param {string} params.userId User ID from PocketBase `users` table.
- * @returns {Promise<EcommerceUser | null>}
+ * @returns {Promise<string>} Stripe customer id.
  */
-async function getEcommerceUser({ userId }) {
-	const normalizedUserId = requireNonEmptyTrimmedString(userId, 'User ID');
+async function findOrCreateStripeCustomer({ userId }) {
+	const user = await pocketbaseClient.collection('users').getOne(userId);
 
-	const urlSearchParams = new URLSearchParams();
-
-	urlSearchParams.set('external_id', normalizedUserId);
-
-	const url = `${process.env.ECOMMERCE_API_URL}/store/${process.env.ECOMMERCE_STORE_ID}/customers?${urlSearchParams.toString()}`;
-
-	const response = await fetch(url, {
-		method: 'GET',
-		headers: {
-			'Accept': 'application/json',
-			'Authorization': `Bearer ${process.env.ECOMMERCE_API_KEY}`,
-			...(process.env.PROXY_ENTRANCE_ID && { 'X-Proxy-Entrance-Id': process.env.PROXY_ENTRANCE_ID }),
-		},
-	});
-
-	if (response.status === 404) {
-		return null;
+	if (user.stripe_customer_id) {
+		return user.stripe_customer_id;
 	}
 
-	await throwIfEcommerceResponseNotOk(response);
+	const customer = await stripeClient.customers.create({
+		email: user.email,
+		metadata: { pocketbase_user_id: userId },
+	});
 
-	/** @type {EcommerceUser} */
-	const data = await readEcommerceJsonBody(response);
+	await pocketbaseClient.collection('users').update(userId, {
+		stripe_customer_id: customer.id,
+	});
 
-	return data;
+	return customer.id;
 }
 
 /**
- * Returns the subscriptions for a given user from the e-commerce API.
+ * Returns the subscriptions for a given user, reading live from Stripe.
  *
  * @param {{ userId: string }} params
- * @param {string} params.userId User ID from PocketBase `users` table.
  * @returns {Promise<EcommerceSubscription[]>}
  */
 export async function getUserSubscriptions({ userId }) {
-	const ecommerceUser = await getEcommerceUser({ userId });
+	const customerId = await getStoredStripeCustomerId(userId);
 
-	return ecommerceUser?.subscriptions ?? [];
+	if (!customerId) {
+		return [];
+	}
+
+	const subscriptions = await stripeClient.subscriptions.list({
+		customer: customerId,
+		status: 'all',
+		expand: ['data.items.data.price.product'],
+	});
+
+	return subscriptions.data.map(mapSubscription);
 }
 
 /**
- * Create and return the manage subscription URL for a given user's subscription.
+ * Create and return the Stripe billing portal URL for a given user.
  *
- * @param {{ userId: string, returnUrl: string, subscriptionId: string }} params
- * @param {string} params.userId User ID from PocketBase `users` table.
- * @param {string} params.returnUrl The URL to redirect the user to after the subscription management is complete.
- * @param {string} params.subscriptionId The ID of the subscription to manage.
+ * @param {{ userId: string, returnUrl: string }} params
  * @returns {Promise<string>} The manage subscriptions URL.
  */
-export async function createManageUserSubscriptionUrl({ userId, returnUrl, subscriptionId }) {
-	const normalizedUserId = requireNonEmptyTrimmedString(userId, 'User ID');
-	const normalizedReturnUrl = requireNonEmptyTrimmedString(returnUrl, 'Return URL');
-	const normalizedSubscriptionId = requireNonEmptyTrimmedString(subscriptionId, 'Subscription ID');
+export async function createManageUserSubscriptionUrl({ userId, returnUrl }) {
+	const customerId = await getStoredStripeCustomerId(userId);
 
-	const url = `${process.env.ECOMMERCE_API_URL}/store/${process.env.ECOMMERCE_STORE_ID}/billing/portal-session`;
+	if (!customerId) {
+		throw new Error('No Stripe customer found for this user');
+	}
 
-	const response = await fetch(url, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'Authorization': `Bearer ${process.env.ECOMMERCE_API_KEY}`,
-			...(process.env.PROXY_ENTRANCE_ID && { 'X-Proxy-Entrance-Id': process.env.PROXY_ENTRANCE_ID }),
-		},
-		body: JSON.stringify({
-			external_user_id: normalizedUserId,
-			return_url: normalizedReturnUrl,
-			subscription_id: normalizedSubscriptionId,
-		}),
+	const session = await stripeClient.billingPortal.sessions.create({
+		customer: customerId,
+		return_url: returnUrl,
 	});
 
-	await throwIfEcommerceResponseNotOk(response);
+	return session.url;
+}
 
-	/** @type {ManageUserSubscriptionsResponse} */
-	const data = await readEcommerceJsonBody(response);
+/**
+ * Create a Stripe Checkout Session for a subscription price.
+ *
+ * @param {{ userId: string, priceId: string, successUrl: string, cancelUrl: string }} params
+ * @returns {Promise<string>} Checkout URL to redirect the customer to.
+ */
+export async function createCheckoutSession({ userId, priceId, successUrl, cancelUrl }) {
+	const customerId = await findOrCreateStripeCustomer({ userId });
 
-	return data.url;
+	const session = await stripeClient.checkout.sessions.create({
+		mode: 'subscription',
+		customer: customerId,
+		line_items: [{ price: priceId, quantity: 1 }],
+		success_url: successUrl,
+		cancel_url: cancelUrl,
+	});
+
+	return session.url;
+}
+
+/**
+ * Lists active subscription plans (Stripe products + recurring prices), formatted for
+ * `PlansList.jsx` / `PlanCard` (same shape the Hostinger catalog used to return).
+ *
+ * @returns {Promise<Array<{
+ *   id: string,
+ *   title: string,
+ *   description: string,
+ *   variants: Array<{ id: string, title: string, price_in_cents: number, currency: string, price_formatted: string, sale_price_in_cents: number|null, sale_price_formatted: string|null }>,
+ * }>>}
+ */
+export async function listPlans() {
+	const prices = await stripeClient.prices.list({
+		active: true,
+		type: 'recurring',
+		expand: ['data.product'],
+		limit: 100,
+	});
+
+	const productsById = new Map();
+
+	for (const price of prices.data) {
+		const product = price.product;
+
+		if (!product || !product.active) {
+			continue;
+		}
+
+		if (!productsById.has(product.id)) {
+			productsById.set(product.id, {
+				id: product.id,
+				title: product.name,
+				description: product.description ?? '',
+				order: Number(product.metadata?.order ?? 0),
+				variants: [],
+			});
+		}
+
+		const compareAtAmount = price.metadata?.compare_at_amount
+			? Number(price.metadata.compare_at_amount)
+			: null;
+
+		productsById.get(product.id).variants.push({
+			id: price.id,
+			title: INTERVAL_TO_VARIANT_TITLE[price.recurring?.interval] ?? price.recurring?.interval,
+			price_in_cents: compareAtAmount ?? price.unit_amount,
+			currency: price.currency,
+			price_formatted: formatBrl(compareAtAmount ?? price.unit_amount),
+			sale_price_in_cents: compareAtAmount ? price.unit_amount : null,
+			sale_price_formatted: compareAtAmount ? formatBrl(price.unit_amount) : null,
+		});
+	}
+
+	return [...productsById.values()].sort((a, b) => a.order - b.order);
+}
+
+function formatBrl(amountInCents) {
+	return `R$${(amountInCents / 100).toFixed(2)}`;
 }

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createManageUserSubscriptionUrl, getUserSubscriptions } from '../../api/ecommerce-subscriptions.js';
+import { createCheckoutSession, createManageUserSubscriptionUrl, getUserSubscriptions } from '../../api/ecommerce-subscriptions.js';
 
 const router = Router();
 
@@ -67,18 +67,34 @@ router.post('/manage', async (req, res) => {
 		throw new Error('Return URL and Subscription ID are required');
 	}
 
-	try {
-		const url = await createManageUserSubscriptionUrl({ userId, returnUrl: returnUrl.trim(), subscriptionId });
-		return res.json({ url });
-	} catch (error) {
-		if (error.message?.includes('No Stripe payment provider configured')) {
-			return res.json({
-				code: 'STRIPE_NOT_CONFIGURED',
-				message: "Test subscriptions can't be managed. Purchase with a real payment method to enable full access",
-			});
-		}
-		throw error;
+	const url = await createManageUserSubscriptionUrl({ userId, returnUrl: returnUrl.trim() });
+
+	return res.json({ url });
+});
+
+/**
+ * Creates a Stripe Checkout session for the resolved user and returns its URL.
+ */
+router.post('/checkout', async (req, res) => {
+	const { priceId, successUrl, cancelUrl } = req.body;
+	const userId = getUserIdFromRequest(req);
+
+	if (!userId) {
+		throw new Error('User ID is required');
 	}
+
+	if (typeof priceId !== 'string' || priceId.trim() === '' || typeof successUrl !== 'string' || successUrl.trim() === '' || typeof cancelUrl !== 'string' || cancelUrl.trim() === '') {
+		throw new Error('Price ID, success URL and cancel URL are required');
+	}
+
+	const url = await createCheckoutSession({
+		userId,
+		priceId: priceId.trim(),
+		successUrl: successUrl.trim(),
+		cancelUrl: cancelUrl.trim(),
+	});
+
+	return res.json({ url });
 });
 
 export default router;
