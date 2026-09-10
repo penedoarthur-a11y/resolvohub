@@ -4,6 +4,7 @@ import integratedAiRouter from './integrated-ai.js';
 import subscriptionsRouter from './ecommerce/subscriptions.js';
 import productsRouter from './ecommerce/products.js';
 import briefingsRouter from './briefings.js';
+import adminConsultoriaOrdersRouter from './admin-consultoria-orders.js';
 import authMiddleware from '../middleware/auth.js';
 import adminMiddleware from '../middleware/admin.js';
 import { listPlans } from '../api/ecommerce-subscriptions.js';
@@ -27,6 +28,7 @@ export default () => {
     router.use('/ecommerce/subscriptions', authMiddleware, subscriptionsRouter);
     router.use('/ecommerce/products', authMiddleware, productsRouter);
     router.use('/admin/briefings', adminMiddleware, briefingsRouter);
+    router.use('/admin/consultoria-orders', adminMiddleware, adminConsultoriaOrdersRouter);
 
     return router;
 };

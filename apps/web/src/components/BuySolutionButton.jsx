@@ -1,45 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getProducts, initializeCheckout } from '@/api/EcommerceApi';
+import { useOneTimeProducts } from '@/hooks/useOneTimeProducts';
+import { createOneTimeCheckout } from '@/api/InternalEcommerceProductsApi';
 import { useAuth } from '@/contexts/AuthContext';
 
 const ONE_OFF_TITLE = 'Solução completa avulsa';
 
 export default function BuySolutionButton({ context, className }) {
-    const [product, setProduct] = useState(null);
+    const { products, loading: productsLoading } = useOneTimeProducts();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const { user, isAuthed } = useAuth();
+    const { isAuthed } = useAuth();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        let cancelled = false;
-        getProducts({})
-            .then((res) => {
-                if (cancelled) return;
-                const found = (res?.products ?? []).find((p) => p.title === ONE_OFF_TITLE) ?? (res?.products ?? [])[0];
-                setProduct(found ?? null);
-            })
-            .catch(() => setProduct(null));
-        return () => { cancelled = true; };
-    }, []);
-
-    const variant = product?.variants?.[0];
+    const product = products.find((p) => p.title === ONE_OFF_TITLE) ?? products[0] ?? null;
 
     const handleClick = async () => {
         if (!isAuthed) {
             navigate('/login');
             return;
         }
-        if (!variant) return;
+        if (!product) return;
         setError(null);
         setLoading(true);
         try {
-            const { url } = await initializeCheckout({
-                items: [{ variant_id: variant.id, quantity: 1 }],
-                successUrl: `${window.location.origin}/painel?compra=1`,
+            const { url } = await createOneTimeCheckout({
+                priceId: product.priceId,
+                successUrl: `${window.location.origin}/consultoria/obrigado?session_id={CHECKOUT_SESSION_ID}`,
                 cancelUrl: window.location.href,
-                customer: { external_id: user?.id, email: user?.email },
             });
             sessionStorage.setItem('ultimaSolucao', JSON.stringify(context ?? {}));
             window.location = url;
@@ -54,10 +42,10 @@ export default function BuySolutionButton({ context, className }) {
             <button
                 type="button"
                 onClick={handleClick}
-                disabled={loading || !variant}
+                disabled={loading || productsLoading || !product}
                 className={className ?? 'w-full rounded-xl bg-[hsl(var(--primary))] px-5 py-3 text-sm font-semibold text-[hsl(var(--primary-foreground))] transition-transform hover:brightness-110 active:scale-[0.98] disabled:opacity-60'}
             >
-                {loading ? 'Redirecionando…' : variant ? `Comprar solução completa — ${variant.price_formatted}` : 'Carregando preço…'}
+                {loading ? 'Redirecionando…' : product ? `Comprar solução completa — ${product.price_formatted}` : 'Carregando preço…'}
             </button>
             {error && <p className="mt-2 text-sm text-[hsl(var(--destructive))]" role="alert">{error}</p>}
         </div>

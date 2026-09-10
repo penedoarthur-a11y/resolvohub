@@ -129,7 +129,7 @@ function PlanCard({ plan, subscriptions }) {
 						<ManageSubscriptionButton />
 					) : isLocked ? (
 						<div className="space-y-2">
-							<p className="text-sm text-muted-foreground">Switch from your current plan in the customer portal.</p>
+							<p className="text-sm text-muted-foreground">Troque de plano pelo portal de gerenciamento da assinatura.</p>
 							<ManageSubscriptionButton />
 						</div>
 					) : (

@@ -46,10 +46,10 @@ export default function ConsultoriaObrigadoPage() {
 
 				{status === 'success' && (
 					<>
-						<h1 className="font-display text-3xl font-semibold">Consultoria contratada!</h1>
+						<h1 className="font-display text-3xl font-semibold">Compra confirmada!</h1>
 						<p className="mt-4 text-[hsl(var(--muted-foreground))]">
 							{order ? `Pagamento de ${order.amountFormatted} confirmado para ${order.productTitle}.` : 'Pagamento confirmado.'}
-							{' '}Nossa equipe vai entrar em contato em breve para agendar sua conversa.
+							{' '}Nossa equipe vai entrar em contato em breve.
 						</p>
 						<Link to="/painel" className="mt-8 inline-block rounded-md bg-primary text-primary-foreground px-4 py-2 font-medium hover:bg-primary/90">
 							Ir para meu painel

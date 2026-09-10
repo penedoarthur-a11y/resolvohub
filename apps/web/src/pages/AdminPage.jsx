@@ -108,6 +108,9 @@ export default function AdminPage() {
     const [briefingsLoading, setBriefingsLoading] = useState(true);
     const [briefingsError, setBriefingsError] = useState(null);
     const [statusFilter, setStatusFilter] = useState('');
+    const [consultoriaOrders, setConsultoriaOrders] = useState([]);
+    const [consultoriaLoading, setConsultoriaLoading] = useState(true);
+    const [consultoriaError, setConsultoriaError] = useState(null);
 
     useEffect(() => {
         setBriefingsLoading(true);
@@ -118,6 +121,13 @@ export default function AdminPage() {
             .catch((err) => setBriefingsError(err.message))
             .finally(() => setBriefingsLoading(false));
     }, [statusFilter]);
+
+    useEffect(() => {
+        integratedAiClient.fetch('/admin/consultoria-orders')
+            .then((data) => setConsultoriaOrders(data.items ?? []))
+            .catch((err) => setConsultoriaError(err.message))
+            .finally(() => setConsultoriaLoading(false));
+    }, []);
 
     const handleStatusChange = (id, newStatus) => {
         setBriefings((prev) => prev.map((b) => b.id === id ? { ...b, status: newStatus } : b));
@@ -191,6 +201,38 @@ export default function AdminPage() {
                             <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 glass">
                                 {briefings.map((b) => (
                                     <BriefingRow key={b.id} b={b} onStatusChange={handleStatusChange} />
+                                ))}
+                            </div>
+                        )}
+                    </section>
+
+                    {/* Consultorias contratadas */}
+                    <section className="mt-12">
+                        <Reveal>
+                            <h2 className="font-display text-2xl font-semibold">Consultorias contratadas</h2>
+                        </Reveal>
+                        {consultoriaError && (
+                            <p className="mt-4 text-sm text-[hsl(var(--destructive))]">Falha ao carregar consultorias: {consultoriaError}</p>
+                        )}
+                        {consultoriaLoading && (
+                            <div className="mt-4 h-24 animate-pulse rounded-2xl border border-white/10 bg-[hsl(var(--card))]" />
+                        )}
+                        {!consultoriaLoading && !consultoriaError && consultoriaOrders.length === 0 && (
+                            <p className="mt-4 text-sm text-[hsl(var(--muted-foreground))]">Nenhuma consultoria contratada ainda.</p>
+                        )}
+                        {!consultoriaLoading && consultoriaOrders.length > 0 && (
+                            <div className="mt-4 divide-y divide-white/10 overflow-hidden rounded-2xl border border-white/10 glass">
+                                {consultoriaOrders.map((o) => (
+                                    <div key={o.id} className="flex flex-wrap items-center justify-between gap-3 p-5">
+                                        <div>
+                                            <p className="font-semibold">{o.email}</p>
+                                            <p className="text-sm text-[hsl(var(--muted-foreground))]">{o.product_title}</p>
+                                        </div>
+                                        <div className="flex items-center gap-3 text-sm">
+                                            <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1">R${(o.amount_in_cents / 100).toFixed(2).replace('.', ',')}</span>
+                                            <span className="text-[hsl(var(--muted-foreground))]">{new Date(o.created).toLocaleString('pt-BR')}</span>
+                                        </div>
+                                    </div>
                                 ))}
                             </div>
                         )}

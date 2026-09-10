@@ -20,7 +20,6 @@ export default function SiteFooter() {
                         <li><Link to="/" className="transition-colors hover:text-foreground">Hub de áreas</Link></li>
                         <li><Link to="/plans" className="transition-colors hover:text-foreground">Planos e preços</Link></li>
                         <li><Link to="/painel" className="transition-colors hover:text-foreground">Meu painel</Link></li>
-                        <li><Link to="/admin" className="transition-colors hover:text-foreground">Painel administrativo</Link></li>
                     </ul>
                 </div>
                 <div className="text-sm">
@@ -28,6 +27,8 @@ export default function SiteFooter() {
                     <ul className="space-y-2 text-[hsl(var(--muted-foreground))]">
                         <li>contato@resolvoja.com</li>
                         <li>Seg a sex, 9h às 18h</li>
+                        <li><Link to="/termos" className="transition-colors hover:text-foreground">Termos de uso</Link></li>
+                        <li><Link to="/privacidade" className="transition-colors hover:text-foreground">Privacidade</Link></li>
                     </ul>
                 </div>
             </div>

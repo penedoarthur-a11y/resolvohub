@@ -69,6 +69,9 @@ export default function LoginPage() {
                         <p className="text-sm text-[hsl(var(--muted-foreground))]">
                             Não tem conta? <Link to="/cadastro" className="font-semibold text-gradient-aurora">Criar conta</Link>
                         </p>
+                        <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                            <Link to="/esqueci-senha" className="font-semibold text-gradient-aurora">Esqueci minha senha</Link>
+                        </p>
                     </motion.form>
                 </div>
             </main>

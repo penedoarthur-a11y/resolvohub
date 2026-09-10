@@ -19,6 +19,8 @@ export const AuthProvider = ({ children }) => {
                 return pb.collection('users').authWithPassword(email, password);
             },
             logout: () => pb.authStore.clear(),
+            requestPasswordReset: (email) => pb.collection('users').requestPasswordReset(email),
+            confirmPasswordReset: (token, password) => pb.collection('users').confirmPasswordReset(token, password, password),
         }),
         [user],
     );

@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /painel
+Disallow: /admin
+Disallow: /subscriptions
+Disallow: /consultoria/obrigado
+
+Sitemap: https://resolvoja.com/sitemap.xml
