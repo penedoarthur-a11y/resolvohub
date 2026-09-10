@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet';
 import Reveal from '@/components/Reveal';
 import AuroraBackground from '@/components/AuroraBackground';
 import PlansList from '@/components/PlansList.jsx';
+import ConsultoriaCard from '@/components/ConsultoriaCard.jsx';
 import SiteHeader from '@/components/SiteHeader';
 import SiteFooter from '@/components/SiteFooter';
 
@@ -38,6 +39,14 @@ export default function PlansPage() {
                     <Reveal delay={0.1}>
                         <div className="mt-12">
                             <PlansList className="grid gap-6 md:grid-cols-3" />
+                        </div>
+                    </Reveal>
+
+                    <Reveal delay={0.15}>
+                        <div className="mt-16">
+                            <h2 className="font-display text-2xl font-semibold mb-2">Prefere conversar com um especialista?</h2>
+                            <p className="text-[hsl(var(--muted-foreground))] mb-6">Sem IA no meio — um especialista te ouve e dá sugestões direto, num papo avulso.</p>
+                            <ConsultoriaCard />
                         </div>
                     </Reveal>
 

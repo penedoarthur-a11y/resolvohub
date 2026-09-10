@@ -65,7 +65,7 @@ async function mapSubscription(subscription) {
  * @param {string} userId PocketBase `users` record id.
  * @returns {Promise<string|null>} Stripe customer id already stored on the user, or null.
  */
-async function getStoredStripeCustomerId(userId) {
+export async function getStoredStripeCustomerId(userId) {
 	const user = await pocketbaseClient.collection('users').getOne(userId);
 
 	return user.stripe_customer_id || null;
@@ -78,7 +78,7 @@ async function getStoredStripeCustomerId(userId) {
  * @param {{ userId: string }} params
  * @returns {Promise<string>} Stripe customer id.
  */
-async function findOrCreateStripeCustomer({ userId }) {
+export async function findOrCreateStripeCustomer({ userId }) {
 	const user = await pocketbaseClient.collection('users').getOne(userId);
 
 	if (user.stripe_customer_id) {
@@ -216,6 +216,6 @@ export async function listPlans() {
 	return [...productsById.values()].sort((a, b) => a.order - b.order);
 }
 
-function formatBrl(amountInCents) {
+export function formatBrl(amountInCents) {
 	return `R$${(amountInCents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }

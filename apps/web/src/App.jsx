@@ -9,6 +9,7 @@ import HomePage from './pages/HomePage';
 import AreaPage from './pages/AreaPage';
 import PlansPage from './pages/PlansPage';
 import SubscriptionsPage from './pages/SubscriptionsPage';
+import ConsultoriaObrigadoPage from './pages/ConsultoriaObrigadoPage';
 import DashboardPage from './pages/DashboardPage';
 import AdminPage from './pages/AdminPage';
 import LoginPage from './pages/LoginPage';
@@ -27,6 +28,7 @@ function App() {
                         <Route path="/login" element={<LoginPage />} />
                         <Route path="/cadastro" element={<SignupPage />} />
                         <Route path="/subscriptions" element={<ProtectedRoute><SubscriptionsPage /></ProtectedRoute>} />
+                        <Route path="/consultoria/obrigado" element={<ProtectedRoute><ConsultoriaObrigadoPage /></ProtectedRoute>} />
                         <Route path="/painel" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
                         <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                     </Routes>
