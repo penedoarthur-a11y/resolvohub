@@ -1,4 +1,3 @@
-import { Buffer } from 'node:buffer';
 import Pocketbase from 'pocketbase';
 
 function unauthorizedError(message) {
@@ -23,17 +22,12 @@ export async function pocketbaseAuth(req, res, next) {
 	}
 
 	try {
-		const base64Decoded = Buffer.from(token, 'base64').toString('utf-8');
-		const tokenData = JSON.parse(base64Decoded);
-
-		if (!tokenData?.token || !tokenData?.record) {
-			return next(unauthorizedError('Sua sessão expirou. Faça login novamente.'));
-		}
-
-		// by refreshing token we verify that it was not intercepted by a malicious user
+		// The frontend sends pocketbaseClient.authStore.token as-is (see
+		// apps/web/src/lib/integratedAiClient.js) — a plain PocketBase JWT, not an
+		// encoded wrapper. Match adminMiddleware's expectation here.
 		const pocketbaseClient = new Pocketbase(process.env.POCKETBASE_URL || 'http://localhost:8090');
-		pocketbaseClient.authStore.save(tokenData.token, tokenData.record);
-		const newToken = await pocketbaseClient.collection(tokenData.record.collectionName).authRefresh();
+		pocketbaseClient.authStore.save(token, null);
+		const newToken = await pocketbaseClient.collection('users').authRefresh();
 
 		if (!newToken.record.verified) {
 			return next(forbiddenError('Verifique seu e-mail para usar o chat. Confira sua caixa de entrada para o link de verificação.'));
