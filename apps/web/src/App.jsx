@@ -16,6 +16,7 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
 import TermosPage from './pages/TermosPage';
 import PrivacidadePage from './pages/PrivacidadePage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -34,6 +35,7 @@ function App() {
                         <Route path="/cadastro" element={<SignupPage />} />
                         <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
                         <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
+                        <Route path="/verificar-email" element={<VerifyEmailPage />} />
                         <Route path="/termos" element={<TermosPage />} />
                         <Route path="/privacidade" element={<PrivacidadePage />} />
                         <Route path="/subscriptions" element={<ProtectedRoute><SubscriptionsPage /></ProtectedRoute>} />
