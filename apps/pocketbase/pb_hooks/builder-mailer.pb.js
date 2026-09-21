@@ -1,41 +1,41 @@
-
 /// <reference path="../pb_data/types.d.ts" />
+
+// Railway blocks outbound SMTP on non-Pro plans, so mail goes out through the
+// Resend HTTPS API. RESEND_FROM must be an address on a domain verified in
+// Resend (or "Resolvoja <onboarding@resend.dev>", which only delivers to the
+// Resend account owner).
 onMailerSend((e) => {
-    if (e.app.settings().smtp.enabled) {
-        return e.next()
+    const apiKey = $os.getenv("RESEND_API_KEY");
+    if (!apiKey) {
+        return e.next();
     }
 
-    const senderAddress = $os.getenv("BUILDER_MAILER_SENDER_ADDRESS");
+    const from = $os.getenv("RESEND_FROM") || "Resolvoja <onboarding@resend.dev>";
 
     const payload = {
-        "subject": e.message.subject,
-        "content": {
-            ...(e.message.html ? {
-                "html": e.message.html,
-            } : {
-                "text": e.message.text,
-            }),
-            "type": "plain",
-        },
-        "from": senderAddress,
-        "fromName": e.message.from?.name,
-        "replyTo": senderAddress,
-        "to": e.message.to[0].address,
+        from,
+        to: e.message.to.map((t) => t.address),
+        subject: e.message.subject,
+    };
+    if (e.message.html) {
+        payload.html = e.message.html;
+    } else {
+        payload.text = e.message.text;
     }
 
     const response = $http.send({
-        url: `${$os.getenv("BUILDER_MAILER_API_URL")}/api/v2/email`,
+        url: "https://api.resend.com/emails",
         method: "POST",
         headers: {
-            "Authorization": `Bearer ${$os.getenv("BUILDER_MAILER_API_KEY")}`,
-            "Content-Type": "application/json"
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        timeout: 20,
     });
-    
-    if (response.statusCode !== 200) {
-        $app.logger().error("Failed to send email", "error", response.json);
 
-        throw new ApiError(500, response.json?.message || 'Failed to send email');
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+        $app.logger().error("Failed to send email via Resend", "status", response.statusCode, "error", response.json);
+        throw new ApiError(500, response.json?.message || "Failed to send email");
     }
 })
